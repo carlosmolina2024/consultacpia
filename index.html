@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portal de Análisis Documental con Agente IA</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-base: #0f172a;
+            --bg-panel: #1e293b;
+            --bg-header: rgba(15, 23, 42, 0.85);
+            --accent-primary: #6366f1;
+            --accent-hover: #4f46e5;
+            --accent-glow: rgba(99, 102, 241, 0.25);
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --border-color: #334155;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: var(--bg-base);
+            color: var(--text-main);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* Top Header Navigation */
+        .app-header {
+            height: 56px;
+            background: var(--bg-header);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 1.25rem;
+            z-index: 100;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-weight: 600;
+            font-size: 1.05rem;
+        }
+
+        .brand-icon {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            box-shadow: 0 0 12px var(--accent-glow);
+        }
+
+        .badge-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.375rem;
+            padding: 0.25rem 0.625rem;
+            border-radius: 9999px;
+            background: rgba(16, 185, 129, 0.1);
+            color: #10b981;
+            border: 1px solid rgba(16, 185, 129, 0.2);
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .pulse-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background-color: #10b981;
+            box-shadow: 0 0 8px #10b981;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.4; transform: scale(1.2); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .btn-layout {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-color);
+            color: var(--text-muted);
+            padding: 0.4rem 0.75rem;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.375rem;
+            transition: all 0.2s ease;
+        }
+
+        .btn-layout:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-main);
+            border-color: #475569;
+        }
+
+        /* Workspace Layout */
+        .workspace {
+            flex: 1;
+            display: flex;
+            width: 100%;
+            height: calc(100vh - 56px);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Left Panel: Document */
+        .panel-left {
+            width: 50%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            background: var(--bg-base);
+            border-right: 1px solid var(--border-color);
+            position: relative;
+            transition: width 0.1s ease-out;
+        }
+
+        .panel-toolbar {
+            height: 46px;
+            background: var(--bg-panel);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 1rem;
+            font-size: 0.85rem;
+        }
+
+        .doc-title {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-main);
+            font-weight: 500;
+        }
+
+        .toolbar-group {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .doc-input-wrapper {
+            display: flex;
+            align-items: center;
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 0.25rem 0.5rem;
+            width: 260px;
+        }
+
+        .doc-input-wrapper input {
+            background: transparent;
+            border: none;
+            outline: none;
+            color: var(--text-main);
+            font-size: 0.75rem;
+            width: 100%;
+        }
+
+        .doc-viewer-container {
+            flex: 1;
+            width: 100%;
+            height: 100%;
+            background: #0f172a;
+        }
+
+        .doc-iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            background: #ffffff;
+        }
+
+        /* Right Panel: AI Exec */
+        .panel-right {
+            flex: 1;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            background: var(--bg-panel);
+            position: relative;
+        }
+
+        .ai-header {
+            height: 46px;
+            background: var(--bg-panel);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 1rem;
+            font-size: 0.85rem;
+        }
+
+        .ai-title {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 600;
+            color: #c084fc;
+        }
+
+        .ai-iframe {
+            width: 100%;
+            height: calc(100% - 46px);
+            border: none;
+            background: transparent;
+        }
+
+        /* Resizer */
+        .resizer {
+            width: 8px;
+            height: 100%;
+            background: var(--bg-base);
+            border-left: 1px solid var(--border-color);
+            border-right: 1px solid var(--border-color);
+            cursor: col-resize;
+            position: relative;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .resizer:hover, .resizer.dragging {
+            background: var(--accent-primary);
+        }
+
+        .resizer-handle {
+            width: 2px;
+            height: 24px;
+            background: var(--text-muted);
+            border-radius: 2px;
+        }
+
+        .icon-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            width: 28px;
+            height: 28px;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.15s ease;
+        }
+
+        .icon-btn:hover {
+            color: var(--text-main);
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        @media (max-width: 868px) {
+            .workspace { flex-direction: column; }
+            .panel-left, .panel-right { width: 100% !important; height: 50% !important; }
+            .resizer { width: 100%; height: 8px; cursor: row-resize; }
+            .resizer-handle { width: 24px; height: 2px; }
+        }
+    </style>
+</head>
+<body>
+
+    <header class="app-header">
+        <div class="brand">
+            <div class="brand-icon"><i class="fa-solid fa-wand-magic-sparkles"></i></div>
+            <span>Workspace Inteligente</span>
+            <div class="badge-status">
+                <span class="pulse-dot"></span>
+                <span>Agente Conectado</span>
+            </div>
+        </div>
+
+        <div class="header-actions">
+            <button class="btn-layout" onclick="setLayout('50')"><i class="fa-solid fa-columns"></i> 50/50</button>
+            <button class="btn-layout" onclick="setLayout('70')"><i class="fa-solid fa-list-check"></i> Documento Ampliado</button>
+            <button class="btn-layout" onclick="setLayout('30')"><i class="fa-solid fa-robot"></i> Agente Ampliado</button>
+        </div>
+    </header>
+
+    <main class="workspace" id="workspace">
+
+        <!-- LADO IZQUIERDO: DOCUMENTO -->
+        <section class="panel-left" id="panelLeft">
+            <div class="panel-toolbar">
+                <div class="doc-title">
+                    <i class="fa-regular fa-file-pdf" style="color: #ef4444;"></i>
+                    <span>Vista Previa de Documento</span>
+                </div>
+                <div class="toolbar-group">
+                    <div class="doc-input-wrapper">
+                        <i class="fa-solid fa-link" style="font-size: 0.7rem; color: var(--text-muted); margin-right: 4px;"></i>
+                        <input type="text" id="docUrlInput" placeholder="URL del Documento..." value="https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf" onchange="updateDocSrc()">
+                    </div>
+                    <button class="icon-btn" title="Recargar" onclick="reloadDoc()"><i class="fa-solid fa-rotate-right"></i></button>
+                    <button class="icon-btn" title="Abrir en pestaña nueva" onclick="openDocNewTab()"><i class="fa-solid fa-arrow-up-right-from-square"></i></button>
+                </div>
+            </div>
+
+            <div class="doc-viewer-container">
+                <iframe id="docFrame" class="doc-iframe" src="https://drive.google.com/file/d/1TTZjWYPpWsfM_JRGlzpshmBi0AE0Z8-_/preview" title="Visor de Documento"></iframe>
+            </div>
+        </section>
+
+        <!-- SEPARADOR ARRASTRABLE -->
+        <div class="resizer" id="dragResizer">
+            <div class="resizer-handle"></div>
+        </div>
+
+        <!-- LADO DERECHO: AGENTE IA -->
+        <section class="panel-right" id="panelRight">
+            <div class="ai-header">
+                <div class="ai-title">
+                    <i class="fa-solid fa-brain"></i>
+                    <span>Agente de Inteligencia Artificial</span>
+                </div>
+                <div class="toolbar-group">
+                    <button class="icon-btn" title="Reiniciar Agente" onclick="reloadAgent()"><i class="fa-solid fa-arrows-rotate"></i></button>
+                </div>
+            </div>
+
+            <iframe id="agentFrame" class="ai-iframe" src="https://script.google.com/macros/s/AKfycbw3TLwZDIXhQ6DUE7C_QNFpn69qk0C6ICdNcd6Ani4cRfgpO4beokwqtLs9Th4_58kW/exec" title="Agente IA Google Apps Script" allow="microphone; camera; clipboard-read; clipboard-write"></iframe>
+        </section>
+
+    </main>
+
+    <script>
+        const panelLeft = document.getElementById('panelLeft');
+        const resizer = document.getElementById('dragResizer');
+        const workspace = document.getElementById('workspace');
+        const docFrame = document.getElementById('docFrame');
+        const agentFrame = document.getElementById('agentFrame');
+        const docUrlInput = document.getElementById('docUrlInput');
+
+        function updateDocSrc() {
+            let url = docUrlInput.value.trim();
+            if (url) {
+                if (url.includes('drive.google.com/file/d/')) {
+                    url = url.replace(/\/view.*$/, '/preview');
+                }
+                docFrame.src = url;
+            }
+        }
+
+        function reloadDoc() { docFrame.src = docFrame.src; }
+        function openDocNewTab() { window.open(docFrame.src, '_blank'); }
+        function reloadAgent() { agentFrame.src = agentFrame.src; }
+
+        function setLayout(percent) {
+            if (window.innerWidth > 868) panelLeft.style.width = percent + '%';
+        }
+
+        let isDragging = false;
+        resizer.addEventListener('mousedown', function(e) {
+            isDragging = true;
+            resizer.classList.add('dragging');
+            document.body.style.cursor = 'col-resize';
+            docFrame.style.pointerEvents = 'none';
+            agentFrame.style.pointerEvents = 'none';
+        });
+
+        document.addEventListener('mousemove', function(e) {
+            if (!isDragging) return;
+            const containerWidth = workspace.getBoundingClientRect().width;
+            let leftWidthPercent = (e.clientX / containerWidth) * 100;
+            if (leftWidthPercent < 15) leftWidthPercent = 15;
+            if (leftWidthPercent > 85) leftWidthPercent = 85;
+            panelLeft.style.width = leftWidthPercent + '%';
+        });
+
+        document.addEventListener('mouseup', function() {
+            if (isDragging) {
+                isDragging = false;
+                resizer.classList.remove('dragging');
+                document.body.style.cursor = 'default';
+                docFrame.style.pointerEvents = 'auto';
+                agentFrame.style.pointerEvents = 'auto';
+            }
+        });
+    </script>
+</body>
+</html>
