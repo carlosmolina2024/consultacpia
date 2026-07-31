@@ -36,7 +36,7 @@
             overflow: hidden;
         }
 
-        /* Top Header Navigation */
+        /* Top Header Navigation (Cinta adaptable para móvil) */
         .app-header {
             height: 56px;
             background: var(--bg-header);
@@ -48,6 +48,18 @@
             justify-content: space-between;
             padding: 0 1.25rem;
             z-index: 100;
+            gap: 1.5rem;
+            
+            /* Habilita el desplazamiento táctil en horizontal */
+            overflow-x: auto;
+            white-space: nowrap;
+            -webkit-overflow-scrolling: touch; /* Desplazamiento suave en iOS */
+            scrollbar-width: none; /* Oculta scrollbar en Firefox */
+        }
+
+        /* Oculta scrollbar en Chrome, Safari y Edge */
+        .app-header::-webkit-scrollbar {
+            display: none;
         }
 
         .brand {
@@ -56,6 +68,7 @@
             gap: 0.75rem;
             font-weight: 600;
             font-size: 1.05rem;
+            flex-shrink: 0; /* Impide que la marca se encoja */
         }
 
         .brand-icon {
@@ -68,6 +81,7 @@
             justify-content: center;
             color: white;
             box-shadow: 0 0 12px var(--accent-glow);
+            flex-shrink: 0;
         }
 
         .badge-status {
@@ -81,6 +95,7 @@
             border: 1px solid rgba(16, 185, 129, 0.2);
             font-size: 0.75rem;
             font-weight: 500;
+            flex-shrink: 0;
         }
 
         .pulse-dot {
@@ -102,6 +117,7 @@
             display: flex;
             align-items: center;
             gap: 0.75rem;
+            flex-shrink: 0; /* Mantiene el tamaño original de los botones */
         }
 
         .btn-layout {
@@ -116,6 +132,7 @@
             align-items: center;
             gap: 0.375rem;
             transition: all 0.2s ease;
+            white-space: nowrap;
         }
 
         .btn-layout:hover {
@@ -155,6 +172,12 @@
             justify-content: space-between;
             padding: 0 1rem;
             font-size: 0.85rem;
+            overflow-x: auto;
+            scrollbar-width: none;
+        }
+        
+        .panel-toolbar::-webkit-scrollbar {
+            display: none;
         }
 
         .doc-title {
@@ -163,12 +186,15 @@
             gap: 0.5rem;
             color: var(--text-main);
             font-weight: 500;
+            white-space: nowrap;
+            margin-right: 0.5rem;
         }
 
         .toolbar-group {
             display: flex;
             align-items: center;
             gap: 0.5rem;
+            flex-shrink: 0;
         }
 
         .doc-input-wrapper {
@@ -178,7 +204,7 @@
             border: 1px solid var(--border-color);
             border-radius: 6px;
             padding: 0.25rem 0.5rem;
-            width: 260px;
+            width: 200px;
         }
 
         .doc-input-wrapper input {
@@ -231,6 +257,7 @@
             gap: 0.5rem;
             font-weight: 600;
             color: #c084fc;
+            white-space: nowrap;
         }
 
         .ai-iframe {
@@ -278,6 +305,7 @@
             align-items: center;
             justify-content: center;
             transition: all 0.15s ease;
+            flex-shrink: 0;
         }
 
         .icon-btn:hover {
@@ -322,9 +350,9 @@
                     <span>Vista Previa de Documento</span>
                 </div>
                 <div class="toolbar-group">
-                    <div class="doc-input-wrapper">
+                    <div class="doc-input-wrapper"  style="display:none" >
                         <i class="fa-solid fa-link" style="font-size: 0.7rem; color: var(--text-muted); margin-right: 4px;"></i>
-                        <input type="text" id="docUrlInput" placeholder="URL del Documento..." value="https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf" onchange="updateDocSrc()">
+                        <inputtype="text" id="docUrlInput" placeholder="URL del Documento..." value="https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf" onchange="updateDocSrc()">
                     </div>
                     <button class="icon-btn" title="Recargar" onclick="reloadDoc()"><i class="fa-solid fa-rotate-right"></i></button>
                     <button class="icon-btn" title="Abrir en pestaña nueva" onclick="openDocNewTab()"><i class="fa-solid fa-arrow-up-right-from-square"></i></button>
@@ -353,7 +381,7 @@
                 </div>
             </div>
 
-            <iframe id="agentFrame" class="ai-iframe" src="https://script.google.com/macros/s/AKfycbxBXB2U1C0MXJUOx1jiVL-NJD1u66-VPjRZR91MqnyDniXZ8-hvahaiB3OScsyX-EE/exec" title="Agente IA Google Apps Script" allow="microphone; camera; clipboard-read; clipboard-write"></iframe>
+            <iframe id="agentFrame" class="ai-iframe" src="https://script.google.com/macros/s/AKfycbw3TLwZDIXhQ6DUE7C_QNFpn69qk0C6ICdNcd6Ani4cRfgpO4beokwqtLs9Th4_58kW/exec" title="Agente IA Google Apps Script" allow="microphone; camera; clipboard-read; clipboard-write"></iframe>
         </section>
 
     </main>
