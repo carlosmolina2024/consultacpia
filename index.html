@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Portal de Análisis Documental con Agente IA</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -36,7 +36,7 @@
             overflow: hidden;
         }
 
-        /* Top Header Navigation (Cinta adaptable para móvil) */
+        /* Top Header Navigation (Cinta adaptable) */
         .app-header {
             height: 56px;
             background: var(--bg-header);
@@ -49,15 +49,14 @@
             padding: 0 1.25rem;
             z-index: 100;
             gap: 1.5rem;
+            flex-shrink: 0;
             
-            /* Habilita el desplazamiento táctil en horizontal */
             overflow-x: auto;
             white-space: nowrap;
-            -webkit-overflow-scrolling: touch; /* Desplazamiento suave en iOS */
-            scrollbar-width: none; /* Oculta scrollbar en Firefox */
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
         }
 
-        /* Oculta scrollbar en Chrome, Safari y Edge */
         .app-header::-webkit-scrollbar {
             display: none;
         }
@@ -68,7 +67,7 @@
             gap: 0.75rem;
             font-weight: 600;
             font-size: 1.05rem;
-            flex-shrink: 0; /* Impide que la marca se encoja */
+            flex-shrink: 0;
         }
 
         .brand-icon {
@@ -117,7 +116,7 @@
             display: flex;
             align-items: center;
             gap: 0.75rem;
-            flex-shrink: 0; /* Mantiene el tamaño original de los botones */
+            flex-shrink: 0;
         }
 
         .btn-layout {
@@ -141,7 +140,7 @@
             border-color: #475569;
         }
 
-        /* Workspace Layout */
+        /* Workspace Layout (Desktop) */
         .workspace {
             flex: 1;
             display: flex;
@@ -174,6 +173,7 @@
             font-size: 0.85rem;
             overflow-x: auto;
             scrollbar-width: none;
+            flex-shrink: 0;
         }
         
         .panel-toolbar::-webkit-scrollbar {
@@ -219,7 +219,7 @@
         .doc-viewer-container {
             flex: 1;
             width: 100%;
-            height: 100%;
+            height: calc(100% - 46px);
             background: #0f172a;
         }
 
@@ -249,6 +249,7 @@
             justify-content: space-between;
             padding: 0 1rem;
             font-size: 0.85rem;
+            flex-shrink: 0;
         }
 
         .ai-title {
@@ -280,6 +281,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            flex-shrink: 0;
         }
 
         .resizer:hover, .resizer.dragging {
@@ -313,16 +315,81 @@
             background: rgba(255, 255, 255, 0.08);
         }
 
+        /* Mobile Tab Switcher Navigation (Solo visible en dispositivos móviles) */
+        .mobile-tab-bar {
+            display: none;
+            background: var(--bg-panel);
+            border-bottom: 1px solid var(--border-color);
+            padding: 0.4rem 0.75rem;
+            gap: 0.5rem;
+            z-index: 90;
+            flex-shrink: 0;
+        }
+
+        .tab-btn {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 0.5rem 0.75rem;
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-muted);
+            font-size: 0.825rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .tab-btn.active {
+            background: var(--accent-primary);
+            color: #ffffff;
+            border-color: var(--accent-primary);
+            box-shadow: 0 2px 8px var(--accent-glow);
+        }
+
+        /* MEDIA QUERIES PARA MÓVIL (Pestañas a pantalla completa) */
         @media (max-width: 868px) {
-            .workspace { flex-direction: column; }
-            .panel-left, .panel-right { width: 100% !important; height: 50% !important; }
-            .resizer { width: 100%; height: 8px; cursor: row-resize; }
-            .resizer-handle { width: 24px; height: 2px; }
+            .mobile-tab-bar {
+                display: flex;
+            }
+
+            .header-actions {
+                display: none; /* Ocultamos botones de layout 50/50 en móvil */
+            }
+
+            .workspace {
+                height: calc(100vh - 104px); /* 56px header + 48px tab-bar */
+                position: relative;
+            }
+
+            .resizer {
+                display: none; /* Ocultamos el divisor arrastrable */
+            }
+
+            .panel-left, .panel-right {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100% !important;
+                height: 100% !important;
+                border: none;
+                display: none; /* Por defecto ocultos */
+            }
+
+            /* Mostrar la pestaña activa al 100% del alto y ancho */
+            .panel-left.active-tab,
+            .panel-right.active-tab {
+                display: flex !important;
+            }
         }
     </style>
 </head>
 <body>
 
+    <!-- Header / Cinta Superior -->
     <header class="app-header">
         <div class="brand">
             <div class="brand-icon"><i class="fa-solid fa-wand-magic-sparkles"></i></div>
@@ -340,9 +407,22 @@
         </div>
     </header>
 
+    <!-- Barra de Pestañas para Móviles -->
+    <nav class="mobile-tab-bar" id="mobileTabBar">
+        <button class="tab-btn active" id="tabBtnAgent" onclick="switchMobileTab('agent')">
+            <i class="fa-solid fa-robot"></i>
+            <span>Agente IA</span>
+        </button>
+        <button class="tab-btn" id="tabBtnDoc" onclick="switchMobileTab('doc')">
+            <i class="fa-regular fa-file-pdf"></i>
+            <span>Documento</span>
+        </button>
+    </nav>
+
+    <!-- Workspace Principal -->
     <main class="workspace" id="workspace">
 
-        <!-- LADO IZQUIERDO: DOCUMENTO -->
+        <!-- PANEL IZQUIERDO: DOCUMENTO -->
         <section class="panel-left" id="panelLeft">
             <div class="panel-toolbar">
                 <div class="doc-title">
@@ -350,9 +430,9 @@
                     <span>Vista Previa de Documento</span>
                 </div>
                 <div class="toolbar-group">
-                    <div class="doc-input-wrapper"  style="display:none" >
+                    <div class="doc-input-wrapper" style="display:none">
                         <i class="fa-solid fa-link" style="font-size: 0.7rem; color: var(--text-muted); margin-right: 4px;"></i>
-                        <inputtype="text" id="docUrlInput" placeholder="URL del Documento..." value="https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf" onchange="updateDocSrc()">
+                        <input type="text" id="docUrlInput" placeholder="URL del Documento..." value="https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf" onchange="updateDocSrc()">
                     </div>
                     <button class="icon-btn" title="Recargar" onclick="reloadDoc()"><i class="fa-solid fa-rotate-right"></i></button>
                     <button class="icon-btn" title="Abrir en pestaña nueva" onclick="openDocNewTab()"><i class="fa-solid fa-arrow-up-right-from-square"></i></button>
@@ -364,13 +444,13 @@
             </div>
         </section>
 
-        <!-- SEPARADOR ARRASTRABLE -->
+        <!-- SEPARADOR ARRASTRABLE (DESKTOP) -->
         <div class="resizer" id="dragResizer">
             <div class="resizer-handle"></div>
         </div>
 
-        <!-- LADO DERECHO: AGENTE IA -->
-        <section class="panel-right" id="panelRight">
+        <!-- PANEL DERECHO: AGENTE IA -->
+        <section class="panel-right active-tab" id="panelRight">
             <div class="ai-header">
                 <div class="ai-title">
                     <i class="fa-solid fa-brain"></i>
@@ -388,12 +468,17 @@
 
     <script>
         const panelLeft = document.getElementById('panelLeft');
+        const panelRight = document.getElementById('panelRight');
         const resizer = document.getElementById('dragResizer');
         const workspace = document.getElementById('workspace');
         const docFrame = document.getElementById('docFrame');
         const agentFrame = document.getElementById('agentFrame');
         const docUrlInput = document.getElementById('docUrlInput');
+        
+        const tabBtnAgent = document.getElementById('tabBtnAgent');
+        const tabBtnDoc = document.getElementById('tabBtnDoc');
 
+        // Actualizar source del documento
         function updateDocSrc() {
             let url = docUrlInput.value.trim();
             if (url) {
@@ -408,10 +493,29 @@
         function openDocNewTab() { window.open(docFrame.src, '_blank'); }
         function reloadAgent() { agentFrame.src = agentFrame.src; }
 
+        // Cambiar tamaño de paneles en escritorio
         function setLayout(percent) {
             if (window.innerWidth > 868) panelLeft.style.width = percent + '%';
         }
 
+        // Sistema de pestañas para móvil
+        function switchMobileTab(tab) {
+            if (tab === 'agent') {
+                panelRight.classList.add('active-tab');
+                panelLeft.classList.remove('active-tab');
+                
+                tabBtnAgent.classList.add('active');
+                tabBtnDoc.classList.remove('active');
+            } else {
+                panelLeft.classList.add('active-tab');
+                panelRight.classList.remove('active-tab');
+                
+                tabBtnDoc.classList.add('active');
+                tabBtnAgent.classList.remove('active');
+            }
+        }
+
+        // Arrastrar divisor en escritorio
         let isDragging = false;
         resizer.addEventListener('mousedown', function(e) {
             isDragging = true;
